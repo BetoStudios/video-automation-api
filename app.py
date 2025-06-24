@@ -3,6 +3,7 @@ import subprocess
 import requests
 import tempfile
 import os
+import ffmpeg
 
 app = Flask(__name__)
 
@@ -38,7 +39,16 @@ def merge_video_image():
                 output_path
             ]
             
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            # En lugar de subprocess.run(cmd, check=True)
+            (
+                ffmpeg
+                .input(video_path)
+                .input(image_path)
+                .filter('overlay', '(W-w)/2', '(H-h)/2')
+                .output(output_path, acodec='copy')
+                .overwrite_output()
+                .run()
+            )
             
             if result.returncode != 0:
                 return jsonify({'error': result.stderr}), 500
