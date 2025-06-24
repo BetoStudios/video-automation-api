@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-import subprocess
 import requests
 import tempfile
 import os
@@ -29,31 +28,19 @@ def merge_video_image():
             
             # Procesar con FFmpeg
             output_path = f"{temp_dir}/output.mp4"
-            cmd = [
-                'ffmpeg', '-y',
-                '-i', video_path,
-                '-i', image_path,
-                '-filter_complex', 
-                '[1:v]scale=800:600[img];[0:v][img]overlay=(W-w)/2:(H-h)/2',
-                '-c:a', 'copy',
-                output_path
-            ]
             
-            # En lugar de subprocess.run(cmd, check=True)
+            # Usar ffmpeg-python
             (
                 ffmpeg
                 .input(video_path)
                 .input(image_path)
-                .filter('overlay', '(W-w)/2', '(H-h)/2')
+                .filter('overlay', '(W-w)/2:(H-h)/2')
                 .output(output_path, acodec='copy')
                 .overwrite_output()
                 .run()
             )
             
-            if result.returncode != 0:
-                return jsonify({'error': result.stderr}), 500
-            
-            # Por ahora, devolver éxito (luego añadiremos upload)
+            # Devolver éxito
             return jsonify({
                 'success': True,
                 'message': 'Video procesado correctamente'
