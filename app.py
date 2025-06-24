@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from datetime import datetime
 import requests
 import tempfile
 import os
 import ffmpeg
 import traceback
+
 
 app = Flask(__name__)
 
@@ -80,6 +82,10 @@ def merge_video_image():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'OK'})
+
+@app.route('/test', methods=['GET'])
+def test():
+    return jsonify({'message': 'Test endpoint working', 'timestamp': str(datetime.now())})
 
 if __name__ == '__main__':
     app.run(debug=True)
