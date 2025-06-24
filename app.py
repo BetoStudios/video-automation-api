@@ -13,7 +13,7 @@ app = Flask(__name__)
 def merge_video_image():
     try:
         print("=== INICIO: Recibiendo petición ===")
-        data = request.get_json()
+        data = request.form.to_dict() if request.form else request.get_json()
         print(f"Datos recibidos: {data}")
         
         video_url = data['video_url']
