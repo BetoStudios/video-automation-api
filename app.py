@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify
-from datetime import datetime
 import requests
 import tempfile
 import os
 import ffmpeg
 import traceback
-
 
 app = Flask(__name__)
 
@@ -13,11 +11,19 @@ app = Flask(__name__)
 def merge_video_image():
     try:
         print("=== INICIO: Recibiendo petición ===")
-        data = request.form.to_dict() if request.form else request.get_json()
+        
+        # Cambiar para recibir form data en lugar de JSON
+        if request.content_type == 'application/json':
+            data = request.get_json(force=True)
+        else:
+            data = request.form.to_dict()
+            
         print(f"Datos recibidos: {data}")
         
         video_url = data['video_url']
         image_url = data['image_url']
+        output_name = data.get('output_name', 'output.mp4')
+        
         print(f"Video URL: {video_url}")
         print(f"Image URL: {image_url}")
         
@@ -69,7 +75,8 @@ def merge_video_image():
             
             return jsonify({
                 'success': True,
-                'message': 'Video procesado correctamente'
+                'message': 'Video procesado correctamente',
+                'output_name': output_name
             })
             
     except Exception as e:
@@ -82,10 +89,6 @@ def merge_video_image():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'OK'})
-
-@app.route('/test', methods=['GET'])
-def test():
-    return jsonify({'message': 'Test endpoint working', 'timestamp': str(datetime.now())})
 
 if __name__ == '__main__':
     app.run(debug=True)
